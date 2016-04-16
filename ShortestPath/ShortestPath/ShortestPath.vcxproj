@@ -10,6 +10,21 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\CONST.h" />
+    <ClInclude Include="src\graph.h" />
+    <ClInclude Include="src\KSP.h" />
+    <ClInclude Include="src\MinHeap.h" />
+    <ClInclude Include="src\path.h" />
+    <ClInclude Include="src\search_test.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\graph.cpp" />
+    <ClCompile Include="src\KSP.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\path.cpp" />
+    <ClCompile Include="src\search_test.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1D91A955-7410-4113-A8EC-82F2629642B0}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -80,21 +95,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="graph.cpp" />
-    <ClCompile Include="KSP.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="path.cpp" />
-    <ClCompile Include="search_test.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="CONST.h" />
-    <ClInclude Include="graph.h" />
-    <ClInclude Include="KSP.h" />
-    <ClInclude Include="MinHeap.h" />
-    <ClInclude Include="path.h" />
-    <ClInclude Include="search_test.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

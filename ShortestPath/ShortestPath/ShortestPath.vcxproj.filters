@@ -15,40 +15,40 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="graph.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="KSP.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="search_test.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="path.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
+    <ClInclude Include="src\CONST.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graph.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\KSP.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MinHeap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\path.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\search_test.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="graph.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="KSP.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="MinHeap.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="search_test.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="path.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CONST.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
+    <ClCompile Include="src\graph.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\KSP.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\path.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\search_test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
