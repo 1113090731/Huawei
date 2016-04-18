@@ -11,6 +11,9 @@ public:
 		this->graph = graph;
 		init(graph);
 	}
+	Path_(const Path_ &src){
+		this->copy(src);
+	}
 	Path_(){
 		this->graph = NULL;
 		init();
@@ -22,7 +25,8 @@ public:
 	void addVertexBack(int vId);
 	void reveal();
 	void pop();
-	void copy(Path_ &src);
+	void copy(const Path_ &src);
+	void addPath(const Path_ &target);
 
 	int start, end, cost, crossNum;
 	bool inPath[MAX_NUM_V];

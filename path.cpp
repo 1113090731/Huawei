@@ -16,7 +16,7 @@ void Path_::init(Graph *graph){
 
 void Path_::print(){
 
-	printf("\nPath from v_%d to v_%d |-Cost %d\n",start,end, cost);
+	printf("\nPath from v_%d to v_%d |-Cost %d CrossNum %d\n",start,end, cost,crossNum);
 	printf("|-In Vertex:\n");
 	printf("|-");
 	for (int i = 0; i < length; i++){
@@ -70,14 +70,24 @@ void Path_::addVertex(int vId){
 	if (graph->IncludingSet[vId])
 		++crossNum;
 }
+// int start, end, cost, crossNum;
+void Path_::addPath(const Path_ &target){
+	for (int i = 1; i < target.length; i++){
+		int vId = target.path[i];
+		this->addVertex(vId);
+	}
+}
 
 void Path_::addVertexBack(int vId){
 
 	// жу╣Ц
 	if (length == 0){
 		path[length++] = vId;
+		inPath[vId] = true;
 		start = vId;
 		end = vId;
+		if (graph->IncludingSet[vId])
+			++crossNum;
 		return;
 	}
 
@@ -125,12 +135,13 @@ void Path_::pop(){
 	length--;
 }
 
-void Path_::copy(Path_ &src){
+void Path_::copy(const Path_ &src){
+	graph = src.graph;
 	start = src.start;
 	end = src.end;
 	cost = src.cost;
 	length = src.length;
 	crossNum = src.crossNum;
-	memcpy(path, src.path, sizeof(int)*length);
-	memcpy(inPath, src.inPath, sizeof(bool)*length);
+	memcpy(inPath, src.inPath, sizeof(bool)*600);
+	memcpy(path, src.path, sizeof(int)*length);	
 }

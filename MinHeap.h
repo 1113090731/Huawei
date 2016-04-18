@@ -160,6 +160,8 @@ struct MinHeapForPath{
 	};
 
 	Path_* decreaseMin(){
+		if (n == 0)
+			return NULL;
 		Path_ *e = heap[1];
 		decrease(1);
 		return e;

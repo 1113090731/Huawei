@@ -60,10 +60,11 @@ void search_dfs(Graph *graph){
 
 int main(){
 
-	Graph *graph = readGraph("test/case1/topo.csv", "test/case1/demand.csv");
-	
+	Graph *graph = readGraph("test/case8/topo.csv", "test/case8/demand.csv");
+	long t0 = getTime();
 	search_test(graph);
-
+	long t1 = getTime();
+	printf("time %dms\n",t1-t0);
 	return 0;
 }
 

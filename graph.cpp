@@ -214,6 +214,16 @@ Graph* readGraph(const char *graphFile, const char *pathFile){
 
 	fclose(graphData);
 
+
+	for (int i = 0; i < N; i++)
+	for (int j = 0; j < N; j++){
+		if (graph->vTov[i][j] == NULL || !graph->vTov[i][j]->enable)
+			graph->vTovCost[i][j] = MAXINT;
+		else
+			graph->vTovCost[i][j] = graph->vTov[i][j]->Cost;
+	}
+
+
 	/*
 	// ·¶Î§ÆøÎ¶
 	for (int i = 0; i < 600; i++){
@@ -227,16 +237,7 @@ Graph* readGraph(const char *graphFile, const char *pathFile){
 			delete[] vIndex;
 		}
 	}
-	*/
-	for (int i = 0; i < N; i++)
-	for (int j = 0; j < N; j++){
-		if (graph->vTov[i][j] == NULL || !graph->vTov[i][j]->enable)
-			graph->vTovCost[i][j] = MAXINT;
-		else
-			graph->vTovCost[i][j] = graph->vTov[i][j]->Cost;
-	}
-	
-	
+
 	for (int i = 0; i < 600; i++){
 		if (graph->IncludingSet[i] || graph->DestinationId == i){
 			for (int j = 0; j < 600; j++){
@@ -246,7 +247,7 @@ Graph* readGraph(const char *graphFile, const char *pathFile){
 			}
 		}
 	}
-	
+	*/
 	/*
 	int vCount[600];
 	for (int i = 0; i < 600; i++)
