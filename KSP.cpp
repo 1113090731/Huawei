@@ -3,7 +3,7 @@
 #include "MinHeap.h"
 #include <iostream>
 
-PathList* KSP(Graph *g, int start, int end, int k){
+PathList* KSP(Graph *g, ID start, ID end, int k){
 	PathList *result = new PathList();
 	PathList *backup = new PathList();
 	// 先找最短路径
@@ -59,7 +59,7 @@ PathList* KSP(Graph *g, int start, int end, int k){
 	return result;
 }
 
-PathList* KSPwithCount(Graph *g, int start, int end, int k,bool *used){
+PathList* KSPwithCount(Graph *g, ID start, ID end, int k, bool *used){
 
 	bool _used[600];
 	if (used != NULL){
@@ -131,7 +131,7 @@ PathList* KSPwithCount(Graph *g, int start, int end, int k,bool *used){
 	return result;
 }
 
-PathList* KSPeqValue(Graph *g, int start, int end, Path *path,int value, bool *used, int disEdgeId){
+PathList* KSPeqValue(Graph *g, ID start, ID end, Path *path, int value, bool *used, int disEdgeId){
 
 	bool _used[600], _disEdge[4800];
 	if (used != NULL){
@@ -195,7 +195,7 @@ PathList* KSPeqValue(Graph *g, int start, int end, Path *path,int value, bool *u
 	return result;
 }
 
-PathList* KSPeqValue(Graph *g, int start, int end, int value, bool *used, int disEdgeId){
+PathList* KSPeqValue(Graph *g, ID start, ID end, int value, bool *used, int disEdgeId){
 
 		bool _used[600], _disEdge[4800];
 		if (used != NULL){
@@ -265,7 +265,7 @@ PathList* KSPeqValue(Graph *g, int start, int end, int value, bool *used, int di
 		return result;
 	}
 
-PathList* KSPwithCountValue(Graph *g, int start, int end, int k, int value,bool *used){
+PathList* KSPwithCountValue(Graph *g, ID start, ID end, int k, int value, bool *used){
 
 	bool _used[600];
 	if (used != NULL){
@@ -336,7 +336,7 @@ PathList* KSPwithCountValue(Graph *g, int start, int end, int k, int value,bool 
 	return result;
 }
 
-int dijkstra(Graph *g, int start, int end, int *path, int *pos){
+int dijkstra(Graph *g, ID start, ID end, ID *path, ID *pos){
 	unsigned i;
 	int _N = g->numOfV;
 
@@ -432,10 +432,10 @@ int dijkstra(Graph *g, int start, int end, int *path, int *pos){
 	return mdist;// == INFINITY ? -1 : mdist;
 }
 
-int dijkstra(Graph *g, int start, int end, int *path, int *pos, bool *disable){
+int dijkstra(Graph *g, ID start, ID end, ID *path, ID *pos, bool *disable){
 	unsigned i;
 	int _N = g->numOfV;
-
+	*pos = -1;
 	MinHeap *minHeap = new MinHeap(g);
 	int *preVertex = new int[_N];
 	int *dist = new int[_N];
@@ -527,7 +527,7 @@ int dijkstra(Graph *g, int start, int end, int *path, int *pos, bool *disable){
 	return mdist;// == INFINITY ? -1 : mdist;
 }
 
-int dijkstra(Graph *g, int start, int end, int *path, int *pos, bool *disable, bool *disable_edge){
+int dijkstra(Graph *g, ID start, ID end, ID *path, ID *pos, bool *disable, bool *disable_edge){
 	unsigned i;
 	int _N = g->numOfV;
 
@@ -595,7 +595,7 @@ int dijkstra(Graph *g, int start, int end, int *path, int *pos, bool *disable, b
 			}
 		}
 	}
-
+	
 	int mdist = MAXINT;
 	if (end < _N)
 		mdist = dist[end];
@@ -625,7 +625,7 @@ int dijkstra(Graph *g, int start, int end, int *path, int *pos, bool *disable, b
 	return mdist;// == INFINITY ? -1 : mdist;
 }
 
-int dijkstra(Graph *g, int start, int end, int *path, int *pos, bool *disable, int disable_edgeId){
+int dijkstra(Graph *g, ID start, ID end, ID *path, ID *pos, bool *disable, int disable_edgeId){
 	unsigned i;
 	int _N = g->numOfV;
 
@@ -721,4 +721,96 @@ int dijkstra(Graph *g, int start, int end, int *path, int *pos, bool *disable, i
 	delete[] preVertex;
 
 	return mdist;// == INFINITY ? -1 : mdist;
+}
+
+Path_* dijkstra(Graph *g, ID start, ID end, bool *disable){
+	unsigned i;
+	unsigned _N = g->numOfV;
+
+	MinHeap *minHeap = new MinHeap(g);
+	int *preVertex = new int[_N];
+	int *dist = new int[_N];
+	bool *used = new bool[_N];
+	// 初始化
+	for (i = 0; i<_N; i++)
+	{
+		if (disable == NULL)
+			used[i] = false;
+		else
+			used[i] = disable[i];
+		dist[i] = g->vTovCost[start][i];
+		if (dist[i]!=MAXINT)
+			preVertex[i] = start;
+		else
+			preVertex[i] = -1;
+		HeapElement *e = new HeapElement();
+		e->vId = i;
+		e->cost = dist[i];
+		minHeap->insert(e);
+	}
+	used[start] = true;		          
+	used[end] = false;
+
+	unsigned count = 0;
+	while (count++ < _N)
+	{
+		int min_node = -1;
+		int min_dist = MAXINT;
+
+		/* Select */
+		HeapElement *e = minHeap->decreaseMin();
+		if (used[e->vId]) continue;
+		min_dist = e->cost;
+		min_node = e->vId;
+		//delete e;
+		if (min_dist == MAXINT)break;
+
+		/* Record shortest path from the current node to start node */
+		if (min_node >= 0)
+		{
+			used[min_node] = true;
+			dist[min_node] = min_dist;
+		}
+		if (min_node == end){
+			break;
+		}
+
+		/* Adjust */
+		for (i = 0; i<g->vertexs[min_node]->degree; i++)
+		{
+			int v_id = g->vertexs[min_node]->edges[i]->DestinationID;
+			if (used[v_id])continue;  // ignore the used node
+
+			int w = g->vTovCost[min_node][v_id]; //_array[min_node][i] < 0.0 ? INFINITY : _array[min_node][i];
+			if (min_dist + w < dist[v_id])
+			{
+				dist[v_id] = min_dist + w;
+				preVertex[v_id] = min_node;
+				
+				int heapId = minHeap->id_heapId[v_id];
+				HeapElement *e = minHeap->heap[heapId];
+				e->cost = dist[v_id];
+				minHeap->siftUp(heapId);	
+			}
+		}
+	}
+
+	if (preVertex[end] == -1)
+		return NULL;
+
+	Path_ *path = new Path_(g);
+	int cur_index = 0;
+	path->addVertexBack(end);
+	while (preVertex[path->end] != -1){
+		path->addVertexBack(preVertex[path->end]);
+		cur_index++;
+	}
+	path->reveal();
+
+	delete minHeap;
+	delete[] used;
+	delete[] dist;
+	delete[] preVertex;
+
+	return path;
 }

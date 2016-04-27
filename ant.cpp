@@ -36,13 +36,13 @@ void search(Ant *ant){
 		// 到达了终点
 		if (ant->path.end == graph->DestinationId){
 			// 并且经过了所有中间点
-			if (ant->path.crossNum == graph->numOfDemand){	
+			if (ant->path.crossNum == graph->numOfDemand){
 				// 此时找到一条可行路径
 				//printf("find a path!!!!!!!!!!!!!!!! cost:%d time:%dms\n", ant->cost, getTime() - graph->startTime);
 				// 如果优于当前最优，保存下来
 				if (ant->path.cost < graph->minCost){
 					graph->minCost = ant->path.cost;
-					graph->minPath.copy(ant->path);
+					//graph->minPath.copy(ant->path);
 				}
 				// 更新信息素
 				/*

@@ -9,7 +9,10 @@ struct SearchNode{
 
 	SearchNode(MinHeapForPath *minHeap4path){
 		this->minHeap4path = minHeap4path;
-		this->path = minHeap4path->decreaseMin();
+		Path_ *subPath = minHeap4path->decreaseMin();
+		this->path = new Path_();
+		this->path->copy(*subPath);
+		delete subPath;
 		parent = NULL;
 	}
 
@@ -18,7 +21,9 @@ struct SearchNode{
 		this->minHeap4path = minHeap4path;
 		this->path = new Path_();
 		this->path->copy(*parent->path);
-		this->path->addPath(*minHeap4path->decreaseMin());
+		Path_ *subPath = minHeap4path->decreaseMin();
+		this->path->addPath(*subPath);
+		delete subPath;
 	}
 
 	bool nextPath(){
@@ -28,8 +33,13 @@ struct SearchNode{
 		}
 		delete this->path;
 		this->path = new Path_();
-		this->path->copy(*parent->path);
-		this->path->addPath(*subPath);
+		if (parent != NULL){
+			this->path->copy(*parent->path);
+			this->path->addPath(*subPath);
+		}
+		else
+			this->path->copy(*subPath);
+		delete subPath;
 		return true;
 	}
 	const SearchNode *parent;

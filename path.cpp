@@ -1,9 +1,11 @@
 
+#include "CONST.h"
+#include "graph.h"
 #include "path.h"
 #include <stdio.h>
 #include <Windows.h>
 
-void Path_::init(Graph *graph){
+void Path_::init(void *graph){
 	length = 0;
 	cost = 0;
 	crossNum = 0;
@@ -12,10 +14,11 @@ void Path_::init(Graph *graph){
 	if (graph!=NULL)
 		this->graph = graph;
 	memset(inPath, false, sizeof(bool)*MAX_NUM_V);
+	memset(repeatCount, 0, sizeof(ID)*MAX_NUM_V);
 }
 
 void Path_::print(){
-
+	Graph *graph = (Graph *) this->graph;
 	printf("\nPath from v_%d to v_%d |-Cost %d CrossNum %d\n",start,end, cost,crossNum);
 	printf("|-In Vertex:\n");
 	printf("|-");
@@ -38,23 +41,29 @@ void Path_::print(){
 
 }
 
-void Path_::addVertex(int vId){
-
+void Path_::addVertex(ID vId){
+	Graph *graph = (Graph *) this->graph;
 	// 起点
 	if (length == 0){
 		path[length++] = vId;
 		start = vId;
 		end = vId;
+		repeatCount[vId]++;
 		return;
 	}
 
 	// 重复点
 	else if (inPath[vId]){
-		printf("Repeat v_%d\n", path[length - 1], vId);
-		getchar();
-		exit(1);
+		if (canCopy){
+			//repeatCount[vId]++;
+		}
+		else{
+			printf("Repeat v_%d\n", path[length - 1], vId);
+			getchar();
+			exit(1);
+		}
 	}
-	
+
 	Edge *edge = graph->vTov[path[length-1]][vId];
 	// 不存在路径
 	if (edge == 0){
@@ -62,7 +71,7 @@ void Path_::addVertex(int vId){
 		getchar();
 		exit(1);
 	}
-
+	repeatCount[vId]++;
 	end = vId;
 	path[length++] = vId;
 	cost += edge->Cost;
@@ -70,6 +79,7 @@ void Path_::addVertex(int vId){
 	if (graph->IncludingSet[vId])
 		++crossNum;
 }
+
 // int start, end, cost, crossNum;
 void Path_::addPath(const Path_ &target){
 	for (int i = 1; i < target.length; i++){
@@ -78,8 +88,8 @@ void Path_::addPath(const Path_ &target){
 	}
 }
 
-void Path_::addVertexBack(int vId){
-
+void Path_::addVertexBack(ID vId){
+	Graph *graph = (Graph *) this->graph;
 	// 终点
 	if (length == 0){
 		path[length++] = vId;
@@ -125,6 +135,7 @@ void Path_::reveal(){
 }
 
 void Path_::pop(){
+	Graph *graph = (Graph *) this->graph;
 	if (graph->IncludingSet[end]){
 		crossNum--;
 	}

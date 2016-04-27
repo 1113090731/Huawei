@@ -5,14 +5,15 @@
 #include "path.h"
 
 struct HeapElement{
-	int vId, cost;
+	ID vId;
+	int cost;
 };
 
 struct MinHeap{
 
 	Graph *graph;
-	HeapElement *heap[MAXINDEX+1];
-	int id_heapId[MAXINDEX];
+	HeapElement *heap[MAX_INDEX+1];
+	ID id_heapId[MAX_INDEX];
 	int n;
 
 	MinHeap(Graph *g){
@@ -92,8 +93,8 @@ struct MinHeap{
 struct MinHeapForPath{
 
 	Graph *graph;
-	Path_ *heap[MAXINDEX + 1];
-	int id_heapId[MAXINDEX];
+	Path_ *heap[MAX_INDEX + 1];
+	ID id_heapId[MAX_INDEX];
 	int n;
 
 	MinHeapForPath(Graph *g){

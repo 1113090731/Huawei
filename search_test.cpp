@@ -6,7 +6,7 @@
 #include "path.h"
 
 // ÅÐ¶Ï¿É´ïÐÔ
-MinHeapForPath* accessable(Graph *g, int start,bool *disable = NULL){
+MinHeapForPath* accessable(Graph *g,int start,bool *disable = NULL){
 	unsigned i;
 	int _N = g->numOfV;
 
@@ -51,7 +51,7 @@ MinHeapForPath* accessable(Graph *g, int start,bool *disable = NULL){
 		if (used[e->vId]) continue;
 		min_dist = e->cost;
 		min_node = e->vId;
-
+		delete e;
 		if (min_dist == MAXINT)break;
 
 		/* Record shortest path from the current node to start node */
@@ -117,7 +117,6 @@ MinHeapForPath* accessable(Graph *g, int start,bool *disable = NULL){
 				minHeapForPath->insert(path);
 		}
 	}
-	
 
 	delete minHeap;
 	delete[] used;
@@ -127,8 +126,9 @@ MinHeapForPath* accessable(Graph *g, int start,bool *disable = NULL){
 	return minHeapForPath;
 }
 
-void search_test(Graph *graph){
-	
+void search_test(Graph *graph,int target){
+	int count = 0;
+	Path_ *minPath = NULL;
 
 	SearchNode *stack[50];
 	int stackLength = 0;
@@ -136,33 +136,47 @@ void search_test(Graph *graph){
 	stack[stackLength++] = new SearchNode(pathHeap);
 
 	while (true){
+		count++;
 		Path_ *cur = stack[stackLength - 1]->path;
 		//cur->print();
 		if (cur->crossNum == graph->numOfDemand){
 
-			int path[600];
-			int end;
+			ID path[600];
+			ID end;
 			dijkstra(graph, cur->end, graph->DestinationId, path, &end,cur->inPath);
 			if (end > 0){	
 				for (int i = 1; i <= end; i++)
 					cur->addVertex(path[i]);
-				if (check(cur->path, cur->length, graph));
+				if (minPath == NULL || cur->cost < minPath->cost){
+					minPath = cur;
+					check(minPath->path,minPath->length,graph);
+					printf(" count %d\n",count);
+		//			break;
+				}
 					//cur->print();
-				break;
+		//		break;
 			}
-			else{
+		//	else{
 				while (!stack[stackLength - 1]->nextPath()){
+					delete stack[stackLength - 1]->minHeap4path;
+					delete stack[stackLength - 1];
 					stackLength--;
 				}
 				continue;
-			}	
+		//	}	
 		}
 			
-		MinHeapForPath* _pathHeap = accessable(graph, cur->end, cur->inPath);
+		MinHeapForPath* _pathHeap = accessable(graph,cur->end, cur->inPath);
 
-		if (_pathHeap == NULL){
+		if (_pathHeap == NULL || (minPath!=NULL && _pathHeap->heap[1]->cost + stack[stackLength - 1]->path->cost >= minPath->cost)){
 			while (!stack[stackLength - 1]->nextPath()){
+				delete stack[stackLength - 1]->minHeap4path;
+				delete stack[stackLength - 1];
 				stackLength--;
+				if (stackLength == 0){
+					minPath->print();
+					return;
+				}
 			}
 			continue;
 		}

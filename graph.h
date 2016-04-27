@@ -1,90 +1,84 @@
 #pragma once
 
-#define MAXINT 96000
-#define MAXINDEX 600
+#include "CONST.h"
+#include "path.h"
 
 const int RADIUS = 30; // 气味半径 20-30较好
 const int M = 1; // 蚂蚁数量
 const int N = 600;
 
 typedef struct {
-	int LinkID; // 路径id
-	int SourceID; // 起点id
-	int DestinationID; // 目标点id
+	ID LinkID; // 路径id
+	ID SourceID; // 起点id
+	ID DestinationID; // 目标点id
 	int Cost; // 费用
+
 	float trial; // 信息素
-	float smell[600]; // 气味，smell[i] 代表 节点i 散发的气味在此边上的强度
+	float smell[MAX_INDEX]; // 气味，smell[i] 代表 节点i 散发的气味在此边上的强度
 	bool enable; // 是否有效
 	int num;
 	bool selected;
 	float smellQ;
-	int circle[200];
-	int numOfCircle;
-	bool hasCircle[200];
 } Edge;
 
 typedef struct{
 	int CircleID;
-	int edgeId[4800];
+	int edgeId[MAX_EDGE];
 	int numOfEdge;
-	int path[600];
+	int path[MAX_INDEX];
 	int numOfV;
-	bool inCircle[600];
-	int demandIndex[50];
+	bool inCircle[MAX_INDEX];
+	int demandIndex[MAX_DEMAND];
 	int numOfDemand;
-	int demandCost[50];
+	int demandCost[MAX_DEMAND];
 	int cost;
 } Circle;
-/*
-typedef struct {
-int id;
-int smellTag;
-int path[RADIUS+1]; // 路径点
-double smell[20]; // 每段路径的气味
-int pathLength;
-//	short vertexIndex[600]; // 顶点所在路径位置
-} SmellPath; // 气味传递路径
-*/
+
 typedef struct {
 
-	short id;
+	ID id;
 
-	Edge *edges[8]; // 出度边
-	int degree; // 出度
-	int retainDegree;
+	Edge *edges[MAX_DEGREE]; // 出度边
+	char degree; // 出度
+	char retainDegree;
 
-	Edge *in_edges[600]; // 入度边
-	int in_degree; // 入度
+	Edge *in_edges[MAX_INDEX]; // 入度边
+	ID in_degree; // 入度
 	//	float trial; // 信息素
 	//	double smell[600];
 	//	int smellPath[100000]; // smellPath[i]:该顶点在气味路径i上的索引位置
 } Vertex;
 
 typedef struct graph{
-	Edge *edges[4800]; // 存储边
-	int numOfE;
-	Vertex *vertexs[600]; // 存储节点
-	int numOfV;
-	Edge *vTov[600][600]; // 点到点之间的边
-	int vTovCost[600][600];
+	Edge *edges[MAX_EDGE]; // 存储边
+	ID numOfE;
+	Vertex *vertexs[MAX_INDEX]; // 存储节点
+	ID numOfV;
+	Edge *vTov[MAX_INDEX][MAX_INDEX]; // 点到点之间的边
+	Path_* tsp[MAX_INDEX][MAX_INDEX];
+	int vTovCost[MAX_INDEX][MAX_INDEX];
 	Circle *circle[5000];
 	int numOfCircle;
 
-	int SourceID; // 起点
-	int DestinationId; // 终点
-	bool IncludingSet[600]; // 是否是必经节点
-	int demand[50]; // 存储必经节点
-	int numOfDemand; // 必经节点数量
-	int vDemandId[600];
+	ID SourceID; // 起点
+	ID DestinationId; // 终点
+	bool *IncludingSet; // 必经点集指针
+	ID numOfDemand; // 必经点数量指针
+	ID *demand; // 必经点数组指针
 
-	int path[600];
+	bool Including[2][MAX_INDEX]; // 是否是必经节点
+	ID demands[2][MAX_DEMAND]; // 存储必经节点
+	int numOfDemands[2]; // 必经节点数量
+	ID vDemandId[2][MAX_DEMAND];
+
+	ID path[MAX_INDEX];
 	int pathLength;
-	bool IncludingPathSet[600];
+	bool IncludingPathSet[MAX_INDEX];
 	int currentCost;
 	int crossNum;
 
 	int minCost; // 当前最小代价
-	int minPath[600]; // 最小代价路径
+	ID minPath[MAX_INDEX]; // 最小代价路径
 	int minpathLength; // 最小代价路径段数
 
 	//int vcrossNum[600]; // 节点经过次数
@@ -105,8 +99,8 @@ typedef struct graph{
 	int selectedNum;
 
 	// work with solver
-	int index_id[4800];
-	int id_index[4800];
+	ID index_id[MAX_EDGE];
+	ID id_index[MAX_EDGE];
 } Graph;
 
 // 读图
@@ -116,7 +110,11 @@ Graph* readGraph(const char *graphFile, const char *pathFile);
 long getTime(); 
 
 // 检验路径有效性
-bool check(int path[600], int pathLength, Graph *graph); 
+bool check(ID *path, int pathLength, Graph *graph); 
 
 bool checkCircle(Graph *graph, const double *result, int length);
 void preDelCircle(short k, short src, Graph *graph);
+
+void setDemandId(Graph *graph,ID i);
+void buildKSP(short k, short src, short dst, Graph *graph);
+void genSmell(Graph *graph, Vertex *vertex, int smellTag, int distance, int *path, int length, short *vIndex);

@@ -3,16 +3,17 @@
 
 #include <queue>
 #include "graph.h"
+#include "path.h"
 
 using namespace std;
 
 struct Path{
-	int path[MAXINDEX];
-	int end; // Ä©¶Ë
+	ID path[MAX_INDEX];
+	ID end; // Ä©¶Ë
 	int cost;
 	int deviation_src; // ·ÖÀëµã
 	int deviation_edge; // ·ÖÀë±ß
-	bool disable_edge[4800];
+	bool disable_edge[MAX_EDGE];
 };
 
 struct Path_cmp{
@@ -23,15 +24,18 @@ struct Path_cmp{
 
 typedef priority_queue<Path*, vector<Path*>, Path_cmp> PathList;
 
-PathList* KSP(Graph *g, int start, int end, int k);
-PathList* KSPwithCount(Graph *g, int start, int end, int k,bool *used=NULL);
-PathList* KSPwithCountValue(Graph *g, int start, int end, int k, int value, bool *used = NULL);
-PathList* KSPeqValue(Graph *g, int start, int end, int value, bool *used = NULL, int disEdgeId = -1);
-PathList* KSPeqValue(Graph *g, int start, int end, Path *path, int value, bool *used = NULL, int disEdgeId = -1);
+PathList* KSP(Graph *g, ID start, ID end, int k);
+PathList* KSPwithCount(Graph *g, ID start, ID end, int k, bool *used = NULL);
+PathList* KSPwithCountValue(Graph *g, ID start, ID end, int k, int value, bool *used = NULL);
+PathList* KSPeqValue(Graph *g, ID start, ID end, int value, bool *used = NULL, int disEdgeId = -1);
+PathList* KSPeqValue(Graph *g, ID start, ID end, Path *path, int value, bool *used = NULL, int disEdgeId = -1);
 
 
-int dijkstra(Graph *g, int start, int end, int *path, int *pos);
-int dijkstra(Graph *g, int start, int end, int *path, int *pos, bool *disable, bool *disable_edge);
-int dijkstra(Graph *g, int start, int end, int *path, int *pos, bool *disable, int disable_edgeId);
-int dijkstra(Graph *g, int start, int end, int *path, int *pos, bool *disable);
+int dijkstra(Graph *g, ID start, ID end, ID *path, ID *pos);
+int dijkstra(Graph *g, ID start, ID end, ID *path, ID *pos, bool *disable);
+int dijkstra(Graph *g, ID start, ID end, ID *path, ID *pos, bool *disable, bool *disable_edge);
+int dijkstra(Graph *g, ID start, ID end, ID *path, ID *pos, bool *disable, int disable_edgeId);
+
+
+Path_* dijkstra(Graph *g, ID start, ID end, bool *disable = NULL);
 

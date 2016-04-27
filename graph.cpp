@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <stdio.h>
 #include "graph.h"
+#include "path.h"
 #include "KSP.h"
 
 // Windows下获取时间
@@ -14,7 +15,7 @@ long getTime() {
 	return 1000* (t / fre);
 }
 // 检测结果
-bool check(int path[600], int pathLength, Graph *graph){
+bool check(ID *path, int pathLength, Graph *graph){
 	bool inPath[600];
 	for (int i = 0; i < 600; i++)
 		inPath[i] = false;
@@ -36,27 +37,36 @@ bool check(int path[600], int pathLength, Graph *graph){
 	}
 	printf("Cost %d ", sum);
 	if (num != graph->numOfDemand){
-		printf("not all instead ");
+		printf("not all instead %d",num);
 		return false;
 	}
 	return true;
 }
 // KSP路径气味
 void buildKSP(short k, short src, short dst, Graph *graph){
-	PathList *list = KSP(graph, src, dst, k);
-	while (!list->empty()){
-		Circle *c = new Circle();
-		c->CircleID = graph->numOfCircle;
-		graph->circle[graph->numOfCircle++] = c;
-		for (int i = 0; i < list->top()->end; i++){
-			Edge *edge = graph->vTov[list->top()->path[i]][list->top()->path[i + 1]];
-			edge->smell[dst] += 1;
-			c->path[c->numOfV++] = list->top()->path[i];
-		}
-		c->path[c->numOfV++] = list->top()->path[list->top()->end];
-		list->pop();
+	Path_ *path = dijkstra(graph, src, dst, graph->IncludingSet);
+	if (path == NULL)
+		return;
+	for (int i = 0; i < path->length-1; i++){
+		Edge *edge = graph->vTov[path->path[i]][path->path[i + 1]];
+		edge->smell[dst] += 2;
 	}
 }
+//void buildKSP(short k, short src, short dst, Graph *graph){
+//	PathList *list = KSP(graph, src, dst, k);
+//	while (!list->empty()){
+//		Circle *c = new Circle();
+//		c->CircleID = graph->numOfCircle;
+//		graph->circle[graph->numOfCircle++] = c;
+//		for (int i = 0; i < list->top()->end; i++){
+//			Edge *edge = graph->vTov[list->top()->path[i]][list->top()->path[i + 1]];
+//			edge->smell[dst] += 1;
+//			c->path[c->numOfV++] = list->top()->path[i];
+//		}
+//		c->path[c->numOfV++] = list->top()->path[list->top()->end];
+//		list->pop();
+//	}
+//}
 // 范围气味
 void genSmell(Graph *graph, Vertex *vertex, int smellTag, int distance, int *path, int length, short *vIndex){
 
@@ -110,6 +120,12 @@ void genSmell(Graph *graph, Vertex *vertex, int smellTag, int distance, int *pat
 	}
 }
 
+void setDemandId(Graph *graph,ID i){
+	graph->IncludingSet = graph->Including[i];
+	graph->numOfDemand = graph->numOfDemands[i];
+	graph->demand = graph->demands[i];
+}
+
 Graph* readGraph(const char *graphFile, const char *pathFile){
 
 	Graph *graph = new Graph();
@@ -125,32 +141,50 @@ Graph* readGraph(const char *graphFile, const char *pathFile){
 
 	graph->crossNum = 0;
 	graph->currentCost = 0;
-	graph->minCost = 96000;
+	graph->minCost = MAXINT;
 	// 读路径数据
 	FILE *pathData = fopen(pathFile, "rt");
 	if (pathData == NULL)
 		printf("File '%s' open failed\n", pathFile);
-	// 读起点和终点
-	fscanf(pathData, "%d,%d,", &graph->SourceID, &graph->DestinationId);
+	for (int i = 0; i < 2; i++){
+		fscanf(pathData, "%d,%d,%d,", &graph->SourceID, &graph->SourceID, &graph->DestinationId);
+		int pathVertexId;
+		graph->numOfDemands[i] = 0;
 
-	// 读经过顶点
-	int pathVertexId;
-	graph->numOfDemand = 0;
-	fscanf(pathData, "%d", &pathVertexId);
-	graph->IncludingSet[pathVertexId] = true;
-	graph->demand[graph->numOfDemand++] = pathVertexId;
-	graph->vDemandId[pathVertexId] = graph->numOfDemand;
-
-	int last = 0;
-	while (!feof(pathData)){
-		fscanf(pathData, "|%d", &pathVertexId);
-		if (pathVertexId == last)
-			break;
-		graph->IncludingSet[pathVertexId] = true;
-		graph->demand[graph->numOfDemand++] = pathVertexId;
-		graph->vDemandId[pathVertexId] = graph->numOfDemand;
-		last = pathVertexId;
+		while (!feof(pathData)){
+			fscanf(pathData, "%d", &pathVertexId);
+			graph->Including[i][pathVertexId] = true;
+			graph->demands[i][graph->numOfDemands[i]++] = pathVertexId;
+			graph->vDemandId[i][pathVertexId] = graph->numOfDemands[i];
+			char c = fgetc(pathData);
+			if (c == '\n')
+				break;		
+		}
 	}
+	//FILE *pathData = fopen(pathFile, "rt");
+	//if (pathData == NULL)
+	//	printf("File '%s' open failed\n", pathFile);
+	//// 读起点和终点
+	//fscanf(pathData, "%d,%d,", &graph->SourceID, &graph->DestinationId);
+
+	//// 读经过顶点
+	//int pathVertexId;
+	//graph->numOfDemand = 0;
+	//fscanf(pathData, "%d", &pathVertexId);
+	//graph->IncludingSet[pathVertexId] = true;
+	//graph->demand[graph->numOfDemand++] = pathVertexId;
+	//graph->vDemandId[pathVertexId] = graph->numOfDemand;
+
+	//int last = 0;
+	//while (!feof(pathData)){
+	//	fscanf(pathData, "|%d", &pathVertexId);
+	//	if (pathVertexId == last)
+	//		break;
+	//	graph->IncludingSet[pathVertexId] = true;
+	//	graph->demand[graph->numOfDemand++] = pathVertexId;
+	//	graph->vDemandId[pathVertexId] = graph->numOfDemand;
+	//	last = pathVertexId;
+	//}
 
 	fclose(pathData);
 
@@ -164,7 +198,7 @@ Graph* readGraph(const char *graphFile, const char *pathFile){
 		Edge *edge = new Edge();
 		edge->enable = true;
 		edge->trial = 1500;
-		for (int i = 0; i < 600; i++)
+		for (int i = 0; i < MAX_INDEX; i++)
 			edge->smell[i] = 0.001;
 		fscanf(graphData, "%d,%d,%d,%d\n", &edge->LinkID, &edge->SourceID, &edge->DestinationID, &edge->Cost);
 
@@ -199,12 +233,12 @@ Graph* readGraph(const char *graphFile, const char *pathFile){
 		dst->in_edges[dst->in_degree++] = edge;
 	}
 
-	for (int i = 0; i < 600; i++){
+	for (int i = 0; i < MAX_INDEX; i++){
 		if (graph->vertexs[i] != NULL)
 			graph->numOfV++;
 	}
 
-	for (int i = 0; i < 4800; i++){
+	for (int i = 0; i < MAX_EDGE; i++){
 		if (graph->edges[i] != NULL)
 			graph->numOfE++;
 	}
@@ -214,40 +248,71 @@ Graph* readGraph(const char *graphFile, const char *pathFile){
 
 	fclose(graphData);
 
+	//long addPos = graph->numOfV;
+	//for (int i = 0; i < addPos; i++){
+	//	if (graph->SourceID == i)
+	//		continue;
+	//	if (!graph->IncludingSet[i] || graph->DestinationId == i){
+	//		Vertex *vertex = new Vertex();
+	//		graph->vertexs[graph->numOfV++] = vertex;
+	//	}
+	//}
+	//int numOfAddE = 0;
+	//Edge *edge1 = new Edge();
+	//edge1->enable = true;
+	//edge1->SourceID = graph->DestinationId;
+	//edge1->DestinationID = addPos;
+	//edge1->Cost = 0;
+	//graph->vTov[graph->DestinationId][addPos] = edge1;
+	//numOfAddE++;
+	//for (int i = addPos+1; i < graph->numOfV; i++){
+	//	Edge *edge = new Edge();
+	//	edge->enable = true;
+	//	edge->SourceID = i-1;
+	//	edge->DestinationID = i;
+	//	edge->Cost = 0;
+	//	graph->vTov[edge->SourceID][edge->DestinationID] = edge;
+	//	numOfAddE++;
+	//}
+	//Edge *edge2 = new Edge();
+	//edge2->enable = true;
+	//edge2->SourceID = graph->numOfV-1;
+	//edge2->DestinationID = graph->SourceID;
+	//edge2->Cost = 0;
+	//graph->vTov[edge2->SourceID][edge2->DestinationID] = edge2;
+	//numOfAddE++;
+	//
+	//int offset = 0;
+	//for (int i = 0; i < addPos; i++){
+	//	if (graph->DestinationId == i || graph->SourceID == i)
+	//		continue;
+	//	if (!graph->IncludingSet[i]){
+	//		Edge *edge = new Edge();
+	//		edge->enable = true;
+	//		edge->SourceID = addPos + offset;
+	//		edge->DestinationID = i;
+	//		edge->Cost = 0;
+	//		graph->vTov[edge->SourceID][edge->DestinationID] = edge;
+	//		numOfAddE++;
+	//		offset++;
+	//		Edge *edge1 = new Edge();
+	//		edge1->enable = true;
+	//		edge1->SourceID = i;
+	//		edge1->DestinationID = addPos + offset;
+	//		edge1->Cost = 0;
+	//		graph->vTov[edge1->SourceID][edge1->DestinationID] = edge1;
+	//		numOfAddE++;
+	//	}
+	//}
 
-	for (int i = 0; i < N; i++)
-	for (int j = 0; j < N; j++){
+	for (ID i = 0; i < MAX_INDEX; i++)
+	for (ID j = 0; j < MAX_INDEX; j++){
 		if (graph->vTov[i][j] == NULL || !graph->vTov[i][j]->enable)
 			graph->vTovCost[i][j] = MAXINT;
 		else
 			graph->vTovCost[i][j] = graph->vTov[i][j]->Cost;
 	}
-
-
-	/*
-	// 范围气味
-	for (int i = 0; i < 600; i++){
-
-		if (graph->IncludingSet[i] || graph->DestinationId == i){
-			int path[RADIUS];
-			short *vIndex = new short[600];
-			path[0] = i;
-			vIndex[i] = 0;
-			genSmell(graph, graph->vertexs[i], i, 0, path, 1, vIndex);
-			delete[] vIndex;
-		}
-	}
-
-	for (int i = 0; i < 600; i++){
-		if (graph->IncludingSet[i] || graph->DestinationId == i){
-			for (int j = 0; j < 600; j++){
-				if (i != j && (graph->IncludingSet[j] || graph->SourceID == j)){
-					buildKSP(1, j, i, graph);
-				}
-			}
-		}
-	}
-	*/
+	
 	/*
 	int vCount[600];
 	for (int i = 0; i < 600; i++)
